@@ -5,13 +5,15 @@
 
 <h2>LOG IN !!!</h2>
 
-<form >
+<form action="/login">
   Username:<br>
-  <input type="text" name="" value="">
+  <input type="text" name="username" value="">
   <br>
+  <span class="error">{{username_error}}</span>
   PASSWORD:<br>
-  <input type="text" name="" value="">
+  <input type="text" name="password" value="">
   <br><br>
+  <span class="error">{{password_error}}</span>
   <input type="submit" value="Submit">
 </form> 
 

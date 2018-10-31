@@ -6,6 +6,7 @@ app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
+app.secret_key = "b'\xd3\xea?\x7f>\xfdV\xb5\xbb\x87N$\xdc\x032\x06"
 
 
 class Blog (db.Model):
@@ -15,10 +16,10 @@ class Blog (db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
-    def __init__(self, title, blog_post, user_id):
+    def __init__(self, title, blog_post, user):
         self.title = title
         self.blog_post = blog_post
-        self.user_id = user_id
+        self.user = user
 
 
 
@@ -26,14 +27,15 @@ class User (db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120))
     password = db.Column(db.String(1120))
-    #blogs = db.relationship('Blog', backref='user_id')
+    blogs = db.relationship('Blog', backref='user')
 
     def __init__(self, username, password):
         self.username = username
         self.password = password 
 
+@app.before_request
 def bef_request():
-    allowed_routes = ['login', 'signup', 'blog', 'index',]
+    allowed_routes = ['login', 'signUp', 'blog', 'index']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
@@ -51,7 +53,7 @@ def new_post():
         title_error = ""
         body_error = ""
         user_id = User.query.filter_by(username=session['username']).first()
-        new_entry = Blog(blog_post, blog_post, user_id)
+        #new_entry = Blog(blog_post, blog_post, user_id)
 
         if len(title) <1:
             title_error = "No Title"
@@ -61,27 +63,37 @@ def new_post():
 
         if len(title) >1 and len(blog_post) >1:
 
-            new_entry = (Blog(title, blog_post, user_id))
+            #new_entry = (Blog(title, blog_post, user_id))
+            new_entry = Blog(title, blog_post, user_id)
             db.session.add(new_entry) 
             db.session.commit()
-            queryparameter ="/single_post?id=" + str(new_entry.id)
+            blog_post = Blog.query.order_by('-id').first()
+           # queryparameter ="/single_post?id=" + str(blog_post.id)
 
-            return redirect(queryparameter)
-        return render_template('new_post.html', title_error=title_error, body_error=body_error)
+           # return redirect(queryparameter)
+            return render_template('single_post.html', blog_post=blog_post)
+        else:
+            return render_template('new_post.html', title_error=title_error, body_error=body_error)
 
     if request.method == 'GET':
         return render_template('new_post.html')
 
-@app.route('/single_post', methods=['GET'])
-def single_post():
-    #find a blog by id and display that blog
-    blogid = request.args.get("id")
-    single_post = Blog.query.get(blogid)
-    return null
 
-@app.route('/login')
+
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-    return redirect('/login.html')
+    if request.method =='POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and user.password == password:
+            session['username'] = username
+            return redirect('/newpost')
+        else:
+            username_error = "please reenter username"
+            password_error = "pleae reenter password"
+    if request.method == 'GET':
+        return render_template('login.html')
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signUp():
@@ -157,7 +169,11 @@ def signUp():
 
             if not username_error and not password_error and not password_check_error and not email_error:
                 #  return redirect('/welcome?username={0}'.format(username))
-                return render_template('blog.html', username=username)
+                new_user =(User(username, password))
+                db.session.add(new_user)
+                db.session.commit()
+                session['username'] = username
+                return redirect('/new_post')
             else:
                 return render_template('signUp.html', username_error=username_error, username=username, password_error=password_error, password=password, email_error=email_error, email=email, verify=verify,password_check_error=password_check_error)
     else:
