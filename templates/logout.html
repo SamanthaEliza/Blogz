@@ -1,22 +1,11 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
 
 
-<h2>LOG IN !!!</h2>
+<h2>You are logged out!!!</h2>
 
-<!-- <form >
-  Username:<br>
-  <input type="text" name="" value="">
-  <br>
-  PASSWORD:<br>
-  <input type="text" name="" value="">
-  <br><br>
-  <input type="submit" value="Submit">
-</form>  -->
+<a href=/login >LOG IN</a>
+<a href=/blog >View Post</a>
 
-<p>You are not singed in</p>
-
-
-
-</body>
+{% endblock %}

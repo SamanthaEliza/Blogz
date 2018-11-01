@@ -2,10 +2,10 @@
 
 {% block content %}
 
+{% for blog in blogs %}
+        <h1>{{blog.title}}</h1>
+        <p>{{blog.blog}}</p>
 
-        <h1>{{blog_post.title}}</h1>
-        <p>{{blog_post.blog_post}}</p>
-
-<!-- display individual post -->
+{% endfor %}
 
 {% endblock %}

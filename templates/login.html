@@ -1,22 +1,18 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends "base.html" %}
 
-
+{% block content %}
 <h2>LOG IN !!!</h2>
 
-<form action="/login">
+<form action="/login" method="post">
   Username:<br>
-  <input type="text" name="username" value="">
+  <input type="text" name="username" value={{username}}>
   <br>
   <span class="error">{{username_error}}</span>
   PASSWORD:<br>
-  <input type="text" name="password" value="">
+  <input type="text" name="password" value={{password}}>
   <br><br>
   <span class="error">{{password_error}}</span>
   <input type="submit" value="Submit">
 </form> 
 
-
-
-</body>
+{% endblock %}
